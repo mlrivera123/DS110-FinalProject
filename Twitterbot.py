@@ -7,6 +7,11 @@ bearer_token = 'AAAAAAAAAAAAAAAAAAAAAJrVbQEAAAAAskzdAWYVNdGmvxlhSPp2MCP0mM8%3Dfh
 #pip install tweepy
 import tweepy
 
+#import BeautifulSoup
+import requests
+from bs4 import BeautifulSoup
+from textblob import TextBlob
+
 #client = tweepy.Client(consumer_key=consumer_key, consumer_secret=consumer_secret, access_token=access_token, access_token_secret=access_token_secret)
 client = tweepy.Client(bearer_token)
 response = client.search_recent_tweets("AAPL")
@@ -17,6 +22,12 @@ print(response.meta)
 tweets = response.data
 
 # Each Tweet object has default ID and text fields
+
 for tweet in tweets:
     #print(tweet.id)
-    print(tweet.text)
+    blob = TextBlob(str(tweet.text))
+    sentences = blob.sentences
+    for sentence in sentences:
+        print(sentence.sentiment, tweet.text)
+
+
