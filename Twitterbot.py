@@ -22,17 +22,11 @@ print(response.meta)
 tweets = response.data
 
 # Each Tweet object has default ID and text fields
-counter = 0
-counter0 = 0
 for tweet in tweets:
-    counter0 += 1
     blob = TextBlob(str(tweet.text))
     sentences = blob.sentences
-    for sentence in sentences:
-        counter +=1
-        #print(sentence.sentiment, tweet.text)
-        print(sentence.sentiment)
-print(counter)
-print(counter0)
+    for sentence in sentences: #this part iterates through the sentences within the tweet
+        print(sentence.sentiment, tweet.text)
+
 
 
