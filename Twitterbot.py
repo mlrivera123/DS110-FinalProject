@@ -7,7 +7,7 @@ bearer_token = 'AAAAAAAAAAAAAAAAAAAAAJrVbQEAAAAAskzdAWYVNdGmvxlhSPp2MCP0mM8%3Dfh
 #pip install tweepy
 import tweepy
 
-#import BeautifulSoup
+#import BeautifulSoup and TextBlob
 import requests
 from bs4 import BeautifulSoup
 from textblob import TextBlob
@@ -15,9 +15,8 @@ from textblob import TextBlob
 #client = tweepy.Client(consumer_key=consumer_key, consumer_secret=consumer_secret, access_token=access_token, access_token_secret=access_token_secret)
 client = tweepy.Client(bearer_token)
 response = client.search_recent_tweets("AAPL")
-# The method returns a Response object, a named tuple with data, includes,
-# errors, and meta fields
-print(response.meta)
+# The method returns a Response object, a named tuple with data, includes errors, and meta fields
+#print(response.meta)
 
 tweets = response.data
 
@@ -137,8 +136,8 @@ train_features, test_features, train_labels, test_labels = train_test_split(vecs
 random_forest = RandomForestClassifier()
 random_forest.fit(train_features, train_labels)
 
-for tweet in tweets:
-    blob = TextBlob(str(tweet.text))
-    sentences = blob.sentences
-    for sentence in sentences: #this part iterates through the sentences within the tweet
-        print(predict_from_sentence(random_forest, str(sentence)), tweet.text)
+# for tweet in tweets:
+#     blob = TextBlob(str(tweet.text))
+#     sentences = blob.sentences
+#     for sentence in sentences: #this part iterates through the sentences within the tweet
+#         print(predict_from_sentence(random_forest, str(sentence)), tweet.text)
