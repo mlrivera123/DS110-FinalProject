@@ -3,6 +3,8 @@
 
 import tweepy
 import csv
+import re
+import numpy as np
 from textblob import TextBlob
 
 #setting up twitter API
@@ -13,28 +15,33 @@ client = tweepy.Client(bearer_token)
 response = client.search_recent_tweets("AAPL")
 tweets = response.data
 
+#clean tweets
+stopwords = ["for", "on", "an", "a", "of", "and", "in", "the", "to", "from"]
+def clean_tweet(tweet):
+    if type(tweet) == np.float:
+        return ""
+    temp = tweet.lower()
+    temp = re.sub("'", "", temp) # to avoid removing contractions in english
+    temp = re.sub("@[A-Za-z0-9_]+","", temp)
+    temp = re.sub("#[A-Za-z0-9_]+","", temp)
+    temp = re.sub(r'http\S+', '', temp)
+    temp = re.sub('[()!?]', ' ', temp)
+    temp = re.sub('\[.*?\]',' ', temp)
+    temp = re.sub("[^a-z0-9]"," ", temp)
+    temp = temp.split()
+    temp = [w for w in temp if not w in stopwords]
+    temp = " ".join(word for word in temp)
+    return temp
+
 #iterate through tweets adding to a dictionary
 mydict = {}
 for tweet in tweets:
-    blob = TextBlob(str(tweet.text))
-    sentences = blob.sentences
-    for sentence in sentences: #this part iterates through the sentences within the tweet
-        if str(sentence) not in mydict:
-            mydict[str(sentence)] = 0
+    cleaned_tweet = clean_tweet(tweet.text)
+    mydict[cleaned_tweet] = 0
+    print(cleaned_tweet)
+#print(mydict)
 
-print(mydict)
-
-#setting up fields for csv file we want to write
-fields = ['tweet', 'rating']
-filename = "aapltweets.csv"
-
-# writing to csv file 
-with open(filename, 'w') as csvfile: 
-    # creating a csv dict writer object 
-    writer = csv.DictWriter(csvfile, fieldnames = fields) 
-        
-    # writing headers (field names) 
-    writer.writeheader() 
-        
-    # writing data rows 
-    writer.writerows(mydict)
+#writing csv
+with open('finaltest.csv', 'w') as f:
+    for key in mydict.keys():
+        f.write("%s,%s\n"%(key,mydict[key]))
