@@ -12,7 +12,8 @@ bearer_token = 'AAAAAAAAAAAAAAAAAAAAAJrVbQEAAAAAskzdAWYVNdGmvxlhSPp2MCP0mM8%3Dfh
 client = tweepy.Client(bearer_token)
 
 #get tweets
-response = client.search_recent_tweets("AAPL")
+response = client.search_recent_tweets("AAPL", max_results=100)
+#response = client.search_all_tweets("AAPL")
 tweets = response.data
 
 #clean tweets
@@ -42,6 +43,6 @@ for tweet in tweets:
 #print(mydict)
 
 #writing csv
-with open('finaltest.csv', 'w') as f:
+with open('combine4.csv', 'w') as f:
     for key in mydict.keys():
         f.write("%s,%s\n"%(key,mydict[key]))
