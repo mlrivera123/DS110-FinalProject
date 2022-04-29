@@ -44,20 +44,21 @@ def clean_tweet(tweet):
     return temp
 
 #Test printing sentiment
-tweets = response.data
-for tweet in tweets:
-    cleaned_tweet = clean_tweet(tweet.text)
-    blob = TextBlob(str(cleaned_tweet))
-    sentences = blob.sentences
-    for sentence in sentences:
-        print(sentence.sentiment, tweet.text)
+def getSentiment():
+    tweets = response.data
+    for tweet in tweets:
+        cleaned_tweet = clean_tweet(tweet.text)
+        blob = TextBlob(str(cleaned_tweet))
+        sentences = blob.sentences
+        for sentence in sentences:
+            print(sentence.sentiment, tweet.text)
 
 # Based on tutorial at
 # http://jalammar.github.io/a-visual-guide-to-using-bert-for-the-first-time/
 # and including some code from there
 
 # Location of SST2 sentiment dataset
-#SST2_LOC = 'https://github.com/clairett/pytorch-sentiment-classification/raw/master/data/SST2/train.tsv'
+SST2_LOC = 'https://github.com/clairett/pytorch-sentiment-classification/raw/master/data/SST2/train.tsv'
 
 WEIGHTS = 'distilbert-base-uncased'
 # Performance on whole 6920 sentence set is very similar, but takes rather longer
@@ -65,7 +66,8 @@ SET_SIZE = 10
 
 # Download the dataset from its Github location, return as a Pandas dataframe
 def get_dataframe():
-    df = pd.read_csv('finaltest.csv', header=None)
+    #df = pd.read_csv('combine4.csv', header=None)
+    df = pd.read_csv(SST2_LOC, delimiter='\t', header=None)
     return df[:SET_SIZE]
 
 # Extract just the labels from the dataframe
@@ -146,10 +148,26 @@ train_features, test_features, train_labels, test_labels = train_test_split(vecs
 random_forest = RandomForestClassifier()
 random_forest.fit(train_features, train_labels)
 
-for tweet in tweets:
-    cleaned_tweet = clean_tweet(tweet.text)
-    blob = TextBlob(str(cleaned_tweet))
-    sentences = blob.sentences
-    for sentence in sentences: #this part iterates through the sentences within the tweet
-        print(predict_from_sentence(random_forest, str(sentence)), str(sentence))
+#import logistic regression
+from sklearn.linear_model import LogisticRegression
+lr_clf = LogisticRegression(max_iter=3000) # avoid warning about not compiling enough
+lr_clf.fit(train_features, train_labels)
+lr_clf.score(test_features, test_labels)
 
+def MachinePredict(type):
+    tweets = response.data
+    for tweet in tweets:
+        cleaned_tweet = clean_tweet(tweet.text)
+        blob = TextBlob(str(cleaned_tweet))
+        sentences = blob.sentences
+        for sentence in sentences: #this part iterates through the sentences within the tweet
+            if(type == "random_forest"):
+                print(predict_from_sentence(random_forest, str(sentence)), str(sentence))
+            elif(type == "logistic_regression"):
+                print(predict_from_sentence(lr_clf, str(sentence)), str(sentence))
+            else:
+                print("sorry we don't have that yet!")
+
+#getSentiment()
+#MachinePredict("random_forest")
+MachinePredict("logistic_regression")

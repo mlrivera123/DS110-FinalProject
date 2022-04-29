@@ -5,3 +5,4 @@ At this point the user has to manually rate the sentiment in the CSV as either p
 Twitterbot uses the CSV as an input to train a BERT natural language processing model.
 BERT converts each tweet into a vector of information.
 Twitterbot then runs the vectors through the trained model and can use K nearest neighbors or random forrest to classify the sentiment.
+To run this program, go to Twitterbot.py and uncomment which method you want use to classify tweets.
