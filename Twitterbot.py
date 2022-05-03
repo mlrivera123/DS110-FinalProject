@@ -1,8 +1,11 @@
-consumer_key = 'JLsYLzgbgimd9AUO49d9afnmm'
-consumer_secret = 'a8JGJvtJJBpm009JiTcUs1KfD6lLop9YzFECh7yGBA91T0OimM'
-access_token = '1514283971130974212-adKXE1JrGjd7EnVRSZsihOb8TfP6mC'
-access_token_secret = '2Xz3HE4xMWn39XtX8doTVkq5KEK5AV9Qh4JAmGeLOTVX7'
-bearer_token = 'AAAAAAAAAAAAAAAAAAAAAJrVbQEAAAAAskzdAWYVNdGmvxlhSPp2MCP0mM8%3DfheyaxCiWxGKybkok6QDG81CHnViUQqLm7tZb19Df07XmrpD8n'
+"""
+DS110 Final Project
+Max Rivera, Charles Catchpoole
+May 3, 2022
+
+This is a program that uses a twitter API to get recent tweets and uses a trained model to classify tweets
+by their sentiment. 
+"""
 
 import tweepy
 import requests
@@ -21,17 +24,20 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import AdaBoostClassifier
 
-#client = tweepy.Client(consumer_key=consumer_key, consumer_secret=consumer_secret, access_token=access_token, access_token_secret=access_token_secret)
-client = tweepy.Client(bearer_token)
-response = client.search_recent_tweets("AAPL")
+#Twitter API keys
+consumer_key = 'JLsYLzgbgimd9AUO49d9afnmm'
+consumer_secret = 'a8JGJvtJJBpm009JiTcUs1KfD6lLop9YzFECh7yGBA91T0OimM'
+access_token = '1514283971130974212-adKXE1JrGjd7EnVRSZsihOb8TfP6mC'
+access_token_secret = '2Xz3HE4xMWn39XtX8doTVkq5KEK5AV9Qh4JAmGeLOTVX7'
+bearer_token = 'AAAAAAAAAAAAAAAAAAAAAJrVbQEAAAAAskzdAWYVNdGmvxlhSPp2MCP0mM8%3DfheyaxCiWxGKybkok6QDG81CHnViUQqLm7tZb19Df07XmrpD8n'
 
-#Cleaning Tweets
+#This function takes out all symbols and makes sentences lower case.
 stopwords = ["for", "on", "an", "a", "of", "and", "in", "the", "to", "from"]
 def clean_tweet(tweet):
     if type(tweet) == np.float:
         return ""
     temp = tweet.lower()
-    temp = re.sub("'", "", temp) # to avoid removing contractions in english
+    temp = re.sub("'", "", temp) 
     temp = re.sub("@[A-Za-z0-9_]+","", temp)
     temp = re.sub("#[A-Za-z0-9_]+","", temp)
     temp = re.sub(r'http\S+', '', temp)
@@ -42,20 +48,10 @@ def clean_tweet(tweet):
     temp = [w for w in temp if not w in stopwords]
     temp = " ".join(word for word in temp)
     return temp
-
-#Test printing sentiment
-def getSentiment():
-    tweets = response.data
-    for tweet in tweets:
-        cleaned_tweet = clean_tweet(tweet.text)
-        blob = TextBlob(str(cleaned_tweet))
-        sentences = blob.sentences
-        for sentence in sentences:
-            print(sentence.sentiment, tweet.text)
-
+    
+"""Training Machine Learning model"""
 # Based on tutorial at
 # http://jalammar.github.io/a-visual-guide-to-using-bert-for-the-first-time/
-# and including some code from there
 
 # Location of SST2 sentiment dataset
 SST2_LOC = 'https://github.com/clairett/pytorch-sentiment-classification/raw/master/data/SST2/train.tsv'
@@ -118,17 +114,19 @@ def train_knn(train_features, train_labels):
 def evaluate(classifier, test_features, test_labels):
     return classifier.score(test_features, test_labels)
 
-
+#Creates a data frame for a sentence with each word indexed, and tokenizes each word
 def get_tokens_from_sentence(sentence):
   df = pd.DataFrame([[sentence]])
   return get_tokens(df,get_tokenizer())
 
+#Returns BERT vectors
 def get_bert_vecs_from_sentence(sentence):
   tokens = get_tokens_from_sentence(sentence)
   model = get_model()
   vecs =  get_bert_sentence_vectors(model, pad_tokens(tokens))
   return vecs
 
+#Takes either random forrests or logistic regression to classify each sentence as either positive or negative
 def predict_from_sentence(clf, sentence):
   vecs = get_bert_vecs_from_sentence(sentence)
   return clf.predict(vecs)
@@ -154,7 +152,30 @@ lr_clf = LogisticRegression(max_iter=3000) # avoid warning about not compiling e
 lr_clf.fit(train_features, train_labels)
 lr_clf.score(test_features, test_labels)
 
-def MachinePredict(type):
+"""
+Test Code
+Here are the methods to run!
+"""
+
+#client = tweepy.Client(consumer_key=consumer_key, consumer_secret=consumer_secret, access_token=access_token, access_token_secret=access_token_secret)
+
+
+#Test printing sentiment
+def getSentiment(ticker):
+    client = tweepy.Client(bearer_token)
+    response = client.search_recent_tweets(ticker)
+    tweets = response.data
+    for tweet in tweets:
+        cleaned_tweet = clean_tweet(tweet.text)
+        blob = TextBlob(str(cleaned_tweet))
+        sentences = blob.sentences
+        for sentence in sentences:
+            print(sentence.sentiment, tweet.text)
+
+#This function takes either "random_forest", or "logistic_regression" as input and returns a classifcation. 
+def MachinePredict(ticker, type):
+    client = tweepy.Client(bearer_token)
+    response = client.search_recent_tweets(ticker)
     tweets = response.data
     for tweet in tweets:
         cleaned_tweet = clean_tweet(tweet.text)
@@ -168,6 +189,10 @@ def MachinePredict(type):
             else:
                 print("sorry we don't have that yet!")
 
-#getSentiment()
-#MachinePredict("random_forest")
-MachinePredict("logistic_regression")
+"""
+Here are some examples to use!
+"""
+
+#getSentiment("AAPL")
+#MachinePredict("AAPL", "random_forest")
+#MachinePredict("AAPL", "logistic_regression")
