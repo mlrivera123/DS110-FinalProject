@@ -48,7 +48,7 @@ def clean_tweet(tweet):
     temp = [w for w in temp if not w in stopwords]
     temp = " ".join(word for word in temp)
     return temp
-    
+
 """Training Machine Learning model"""
 # Based on tutorial at
 # http://jalammar.github.io/a-visual-guide-to-using-bert-for-the-first-time/
@@ -156,9 +156,6 @@ lr_clf.score(test_features, test_labels)
 Test Code
 Here are the methods to run!
 """
-
-#client = tweepy.Client(consumer_key=consumer_key, consumer_secret=consumer_secret, access_token=access_token, access_token_secret=access_token_secret)
-
 
 #Test printing sentiment
 def getSentiment(ticker):
