@@ -1,6 +1,6 @@
 """
 DS110 Final Project
-Max Rivera, Charles Catchpoole
+Max Rivera
 May 3, 2022
 
 This is a program that uses a twitter API to get recent tweets and uses a trained model to classify tweets
